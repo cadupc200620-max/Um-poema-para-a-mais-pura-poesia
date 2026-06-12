@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>POEMA PARA A POESIA ❤️</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+/* PLAYER DE ÁUDIO */
+.audio-player {
+    margin-top: 20px;
+    margin-bottom: 10px;
+    z-index: 25; /* Garante que fique clicável sobre os corações */
+}
+body{
+    font-family:Arial, Helvetica, sans-serif;
+    background:linear-gradient(135deg,#ffd6d6,#ffeaea);
+    overflow:hidden;
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+/* CORAÇÕES FLUTUANDO */
+
+.hearts{
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+}
+
+.heart{
+    position:absolute;
+    color:#ff4d6d;
+    animation:float 10s linear infinite;
+    opacity:.7;
+}
+
+@keyframes float{
+    from{
+        transform:translateY(100vh);
+        opacity:0;
+    }
+    20%{
+        opacity:1;
+    }
+    to{
+        transform:translateY(-120px);
+        opacity:0;
+    }
+}
+
+/* CARTA */
+
+.container{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+}
+
+.scene{
+    position:relative;
+    width:350px;
+    height:560px;
+}
+
+.envelope{
+    position:absolute;
+    bottom:0;
+    width:350px;
+    height:240px;
+}
+
+/* fundo */
+
+.back{
+    position:absolute;
+    width:100%;
+    height:100%;
+    background:#b84f62;
+    border-radius:0 0 12px 12px;
+}
+
+/* aba */
+
+.flap{
+    position:absolute;
+    top:0;
+    width:0;
+    height:0;
+    border-left:175px solid transparent;
+    border-right:175px solid transparent;
+    border-top:120px solid #d46d80;
+    transform-origin:top;
+    transition:1.2s;
+    z-index:10;
+}
+
+/* frente */
+
+.front{
+    position:absolute;
+    bottom:0;
+    width:0;
+    height:0;
+    border-left:175px solid #cc6477;
+    border-right:175px solid #cc6477;
+    border-bottom:120px solid #b84f62;
+    border-top:120px solid transparent;
+    z-index:8;
+}
+
+/* papel */
+
+.paper{
+    position:absolute;
+    left:50%;
+    bottom:15px;
+    transform:translateX(-50%) scaleY(.3);
+    width:280px;
+    height:180px;
+    background:white;
+    border-radius:12px;
+    box-shadow:0 10px 30px rgba(0,0,0,.15);
+    transition:1.2s;
+    z-index:2;
+    overflow-y:auto;
+    overflow-x:hidden;
+    scrollbar-width:thin;
+}
+
+.paper-content{
+    padding:35px;
+    opacity:0;
+    transition:1s;
+}
+
+.paper-content h2{
+    color:#e63946;
+    text-align:center;
+    margin-bottom:15px;
+}
+
+.paper-content p{
+    line-height:1.7;
+    color:#444;
+    white-space:pre-line;
+}
+
+.btn{
+    margin-top:15px;
+    border:none;
+    padding:14px 28px;
+    border-radius:30px;
+    background:#e63946;
+    color:white;
+    cursor:pointer;
+    font-size:16px;
+    font-weight:bold;
+    transition:.3s;
+}
+
+.btn:hover{
+    transform:scale(1.05);
+}
+
+/* etapas */
+
+.open .flap{
+    transform:rotateX(180deg);
+}
+
+.pull .paper{
+    transform:translateX(-50%) translateY(-140px) scaleY(.35);
+}
+
+.remove .paper{
+    transform:translateX(-50%) translateY(-250px) rotate(-3deg) scaleY(.35);
+    z-index:20;
+}
+
+.read .paper{
+    transform:translateX(-50%) translateY(-250px) scaleY(1);
+    height:460px;
+    z-index:20;
+}
+
+.read .paper-content{
+    opacity:1;
+}
+
+/* chuva final */
+
+.rain-heart{
+    position:fixed;
+    top:-50px;
+    font-size:25px;
+    animation:fall linear forwards;
+}
+
+@keyframes fall{
+    to{
+        transform:translateY(110vh);
+    }
+}
+
+@media(max-width:480px){
+
+.scene{
+    transform:scale(.85);
+}
+
+}
+</style>
+</head>
+
+<body>
+
+<body>
+
+<div class="hearts" id="hearts"></div>
+
+<div class="container">
+
+    <div class="scene" id="scene">
+        <div class="envelope">
+            <div class="paper" id="paper">
+                <div class="paper-content">
+                    <h2>❤️ Para Você ❤️</h2>
+                    <p id="typed"></p>
+                </div>
+            </div>
+            <div class="back"></div>
+            <div class="flap"></div>
+            <div class="front"></div>
+        </div>
+    </div>
+
+    <audio id="musica" controls autoplay loop class="audio-player">
+    <source src="carta.mpeg.mpeg" type="audio/mpeg">
+    Seu navegador não suporta áudio.
+</audio>
+
+    <button class="btn" id="btn">
+        Abrir Envelope
+    </button>
+
+</div>
+
+<script>
+
+/* MENSAGEM */
+const mensagem = `Em meio aos dias comuns da rotina,
+Surgiu você, de uma forma repentina,
+Trazendo sorrisos sem nem perceber
+E deixando meus dias mais fáceis de se viver 
+
+Ainda é pouco o tempo que passou
+Mas algo especial entre nós começou 
+Conversa após conversa, sem pressa
+Devagar
+Descobrindo motivos para sempre voltar
+
+Gosto do teu jeito, e da sua atenção
+Da forma que sua voz alegra o meu coração
+Das risadas que compartilhamos sem notar
+E da paz que sinto ao contigo Conversar 
+
+A distância hoje pode nos separar
+Mas não impede a vontade de te conhecer e lhe abraçar 
+De caminhar ao seu lado quando o momento chegar
+
+Não prometo o impossível nem quero me apressar
+Quero apenas ser sincero e deixar o tempo falar
+Mas se Deus permitir e assim tiver que ser 
+Quero continuar escrevendo essa história com você 
+
+Porque entre tantas pessoas que eu poderia encontrar
+Foi você quem conseguiu o meu dia iluminar 
+E mesmo sem saber o que o futuro trará 
+Sou grato por cada momento que nossa conversa me dá
+ 
+E quando chega a noite e o silêncio faz morada
+Muitas vezes sua lembrança surge inesperada 
+Como uma estrela brilhando em um céu de escuridão 
+Trazendo calma aos pensamentos e aquecendo o meu coração 
+
+Seu sorriso mesmo visto através de uma tela distante
+Tem o poder de tornar qualquer instante importante 
+E é por isso que guardo com carinho cada momento que compartilhamos 
+Porque aos poucos e sem perceber 
+Um pedaço especial vc tem do meu ser 
+
+Há algo em você que eu não consigo explicar 
+Quanto mais te conheço mais eu quero te admirar 
+Não apenas pela beleza que meus olhos podem ver 
+Mas pela pessoa incrível que existe em você
+
+E se um dia nossos caminhos se encontrarem de verdade
+Quero te mostrar que tudo o que eu digo é sinceridade 
+Pois cada palavra escrita foi dita pelo meu coração 
+Carregando carinho, respeito e admiração 
+
+Com carinho,
+Cadu❤️❤️❤️`;
+
+/* corações flutuando */
+
+function createHeart(){
+    const heart=document.createElement("div");
+
+    heart.className="heart";
+    heart.innerHTML="❤️";
+
+    heart.style.left=Math.random()*100+"vw";
+    heart.style.fontSize=(15+Math.random()*25)+"px";
+    heart.style.animationDuration=(6+Math.random()*8)+"s";
+
+    document.getElementById("hearts").appendChild(heart);
+
+    setTimeout(()=>{
+        heart.remove();
+    },15000);
+}
+
+setInterval(createHeart,500);
+
+/* etapas */
+
+const scene=document.getElementById("scene");
+const btn=document.getElementById("btn");
+
+let etapa=0;
+
+btn.onclick=()=>{
+
+if(etapa===0){
+
+scene.classList.add("open");
+
+setTimeout(()=>{
+document.querySelector(".flap").style.zIndex=1;
+},500);
+
+btn.innerText="Retirar Carta";
+etapa=1;
+}
+
+else if(etapa===1){
+
+scene.classList.add("pull");
+
+setTimeout(()=>{
+scene.classList.add("remove");
+},700);
+
+btn.innerText="Abrir Carta";
+etapa=2;
+}
+
+else if(etapa===2){
+
+scene.classList.add("read");
+
+btn.style.display="none";
+
+setTimeout(()=>{
+typeWriter();
+chuvaCoracoes();
+},700);
+
+etapa=3;
+}
+
+};
+
+/* digitação */
+
+function typeWriter(){
+
+const elemento=document.getElementById("typed");
+
+let i=0;
+
+function escrever(){
+
+if(i<mensagem.length){
+
+elemento.innerHTML += mensagem.charAt(i);
+
+i++;
+
+setTimeout(escrever,30);
+}
+
+}
+
+escrever();
+
+}
+
+/* chuva de corações */
+
+function chuvaCoracoes(){
+
+setInterval(()=>{
+
+const h=document.createElement("div");
+
+h.className="rain-heart";
+h.innerHTML="❤️";
+
+h.style.left=Math.random()*100+"vw";
+h.style.animationDuration=(3+Math.random()*3)+"s";
+
+document.body.appendChild(h);
+
+setTimeout(()=>{
+h.remove();
+},6000);
+
+},250);
+
+}
+
+</script>
+
+</body>
+</html>
